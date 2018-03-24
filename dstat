@@ -2628,7 +2628,11 @@ def main():
                         print('Module %s is of unknown type.' % pluginfile, file=sys.stderr)
 
                 else:
-                    exec('o = %s()' % pluginfile)
+                    # FIXME - https://docs.python.org/3/whatsnew/3.0.html#removed-syntax exec()
+                    #         the code within exec() is within the local scope, but it does not seem to work
+                    mod = 'o = %s()' % pluginfile
+                    o = "%s()" % pluginfile
+                    exec(mod) # FIXME so far so good, but "o" does not propagate?
                     o.check()
                     o.prepare()
 #                print o.__module__
