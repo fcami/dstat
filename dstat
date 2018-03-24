@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 ### This program is free software; you can redistribute it and/or
 ### modify it under the terms of the GNU General Public License
@@ -30,32 +30,6 @@ theme = { 'default': '' }
 
 if sys.version_info < (2, 4):
     sys.exit('error: Python 2.4 or later required')
-
-### Workaround for python < 2.3
-#if 'enumerate' not in __builtins__.__dict__:
-if sys.version_info >= (2, 2) and sys.version_info < (2, 3):
-    def enumerate(sequence):
-        index = 0
-        for item in sequence:
-            yield index, item
-            index = index + 1
-elif sys.version_info < (2, 2):
-    def enumerate(sequence):
-        index = 0
-        seqlist = []
-        for item in sequence:
-            seqlist.append((index, item))
-            index = index + 1
-        return seqlist
-
-### Workaround for python < 2.3
-#if 'sum' not in __builtins__.__dict__:
-if sys.version_info < (2, 3):
-    def sum(sequence):
-        ret = 0
-        for i in sequence:
-            ret = ret + i
-        return ret
 
 pluginpath = [
     os.path.expanduser('~/.dstat/'),                                # home + /.dstat/
@@ -1881,8 +1855,8 @@ def dopen(filename):
 #        return None
     if 'fds' not in globals():
         fds = {}
-    if file not in fds:
-        fds[filename] = open(filename, 'r', 0)
+    if filename not in fds.keys():
+        fds[filename] = open(filename, 'r')
     else:
         fds[filename].seek(0)
     return fds[filename]
