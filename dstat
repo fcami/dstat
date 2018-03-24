@@ -28,15 +28,8 @@ VERSION = '0.7.3'
 
 theme = { 'default': '' }
 
-if sys.version_info < (2, 2):
-    sys.exit('error: Python 2.2 or later required')
-
-### Workaround for python <= 2.2.1
-try:
-    True, False
-except NameError:
-    True = 1
-    False = 0
+if sys.version_info < (2, 4):
+    sys.exit('error: Python 2.4 or later required')
 
 ### Workaround for python < 2.3
 #if 'enumerate' not in __builtins__.__dict__:
@@ -119,8 +112,8 @@ class Options:
                  'debug', 'filesystem', 'float', 'full', 'help', 'integer',
                  'list', 'mods', 'modules', 'nocolor', 'noheaders', 'noupdate',
                  'output=', 'pidfile=', 'profile', 'version', 'vmstat'] + allplugins)
-        except getopt.error, exc:
-            print 'dstat: %s, try dstat -h for a list of all the options' % str(exc)
+        except getopt.error as exc:
+            print('dstat: %s, try dstat -h for a list of all the options' % str(exc))
             sys.exit(1)
 
         for opt, arg in opts:
@@ -216,62 +209,62 @@ class Options:
             elif opt.startswith('--'):
                 self.plugins.append(opt[2:])
             else:
-                print 'dstat: option %s unknown to getopt, try dstat -h for a list of all the options' % opt
+                print('dstat: option %s unknown to getopt, try dstat -h for a list of all the options' % opt)
                 sys.exit(1)
 
         if self.float and self.integer:
-            print 'dstat: option --float and --integer are mutual exclusive, you can only force one'
+            print('dstat: option --float and --integer are mutual exclusive, you can only force one')
             sys.exit(1)
 
         if not self.plugins:
-            print 'You did not select any stats, using -cdngy by default.'
+            print('You did not select any stats, using -cdngy by default.')
             self.plugins = [ 'cpu', 'disk', 'net', 'page', 'sys' ]
 
         try:
             if len(args) > 0: self.delay = int(args[0])
             if len(args) > 1: self.count = int(args[1])
         except:
-            print 'dstat: incorrect argument, try dstat -h for the correct syntax'
+            print('dstat: incorrect argument, try dstat -h for the correct syntax')
             sys.exit(1)
 
         if self.delay <= 0:
-            print 'dstat: delay must be an integer, greater than zero'
+            print('dstat: delay must be an integer, greater than zero')
             sys.exit(1)
 
         if self.debug:
-            print 'Plugins: %s' % self.plugins
+            print('Plugins: %s' % self.plugins)
 
     def version(self):
-        print 'Dstat %s' % VERSION
-        print 'Written by Dag Wieers <dag@wieers.com>'
-        print 'Homepage at http://dag.wieers.com/home-made/dstat/'
-        print
-        print 'Platform %s/%s' % (os.name, sys.platform)
-        print 'Kernel %s' % os.uname()[2]
-        print 'Python %s' % sys.version
-        print
+        print('Dstat %s' % VERSION)
+        print('Written by Dag Wieers <dag@wieers.com>')
+        print('Homepage at http://dag.wieers.com/home-made/dstat/')
+        print("\n")
+        print('Platform %s/%s' % (os.name, sys.platform))
+        print('Kernel %s' % os.uname()[2])
+        print('Python %s' % sys.version)
+        print("\n")
 
         color = ""
         if not gettermcolor():
             color = "no "
-        print 'Terminal type: %s (%scolor support)' % (os.getenv('TERM'), color)
+        print('Terminal type: %s (%scolor support)' % (os.getenv('TERM'), color))
         rows, cols = gettermsize()
-        print 'Terminal size: %d lines, %d columns' % (rows, cols)
-        print
-        print 'Processors: %d' % getcpunr()
-        print 'Pagesize: %d' % resource.getpagesize()
-        print 'Clock ticks per secs: %d' % os.sysconf('SC_CLK_TCK')
-        print
+        print('Terminal size: %d lines, %d columns' % (rows, cols))
+        print("\n")
+        print('Processors: %d' % getcpunr())
+        print('Pagesize: %d' % resource.getpagesize())
+        print('Clock ticks per secs: %d' % os.sysconf('SC_CLK_TCK'))
+        print("\n")
 
         global op
         op = self
         showplugins()
 
     def usage(self):
-        print 'Usage: dstat [-afv] [options..] [delay [count]]'
+        print('Usage: dstat [-afv] [options..] [delay [count]]')
 
     def help(self):
-        print '''Versatile tool for generating system resource statistics
+        print('''Versatile tool for generating system resource statistics
 
 Dstat options:
   -c, --cpu                enable cpu stats
@@ -327,7 +320,7 @@ Dstat options:
 
 delay is the delay in seconds between each update (default: 1)
 count is the number of updates to display before exiting (default: unlimited)
-'''
+''')
 
 ### START STATS DEFINITIONS ###
 class dstat:
@@ -351,7 +344,7 @@ class dstat:
         if callable(self.vars):
             self.vars = self.vars()
         if not self.vars:
-            raise Exception, 'No counter objects to monitor'
+            raise Exception('No counter objects to monitor')
         if callable(self.name):
             self.name = self.name()
         if callable(self.nick):
@@ -390,7 +383,7 @@ class dstat:
             except:
                 pass
         if not self.fd:
-            raise Exception, 'Cannot open file %s' % filename
+            raise Exception('Cannot open file %s' % filename)
 
     def readlines(self):
         "Return lines from any file descriptor"
@@ -512,12 +505,12 @@ class dstat:
 #        if hasattr(self, 'fd') and not self.fd:
 #            raise Exception, 'File %s does not exist' % self.fd
         if not self.vars:
-            raise Exception, 'No objects found, no stats available'
+            raise Exception('No objects found, no stats available')
         if not self.discover:
-            raise Exception, 'No objects discovered, no stats available'
+            raise Exception('No objects discovered, no stats available')
         if self.colwidth():
             return True
-        raise Exception, 'Unknown problem, please report'
+        raise Exception('Unknown problem, please report')
 
     def discover(self, *objlist):
         return True
@@ -792,7 +785,7 @@ class dstat_disk(dstat):
             ret.append(name)
         for item in objlist: ret.append(item)
         if not ret:
-            raise Exception, "No suitable block devices found to monitor"
+            raise Exception("No suitable block devices found to monitor")
         return ret
 
     def basename(self, disk):
@@ -807,12 +800,12 @@ class dstat_disk(dstat):
                     if target[0] != '/':
                         target = os.path.join(os.path.dirname(disk), target)
                         target = os.path.normpath(target)
-                    print 'dstat: symlink %s -> %s' % (disk, target)
+                    print('dstat: symlink %s -> %s' % (disk, target))
                     disk = target
                 # trim leading /dev/
                 return disk[5:]
             else:
-                print 'dstat: %s does not exist' % disk
+                print('dstat: %s does not exist' % disk)
         else:
             return disk
 
@@ -868,7 +861,7 @@ class dstat_disk24(dstat):
         self.diskfilter = re.compile('^([hsv]d[a-z]+\d+|cciss/c\d+d\d+p\d+|dm-\d+|md\d+|mmcblk\d+p\d0|VxVM\d+)$')
         self.open('/proc/partitions')
         if self.fd and not self.discover:
-            raise Exception, 'Kernel has no per-partition I/O accounting [CONFIG_BLK_STATS], use at least 2.4.20'
+            raise Exception('Kernel has no per-partition I/O accounting [CONFIG_BLK_STATS], use at least 2.4.20')
         self.cols = 2
 
     def discover(self, *objlist):
@@ -879,7 +872,7 @@ class dstat_disk24(dstat):
             ret.append(name)
         for item in objlist: ret.append(item)
         if not ret:
-            raise Exception, "No suitable block devices found to monitor"
+            raise Exception("No suitable block devices found to monitor")
         return ret
 
     def basename(self, disk):
@@ -894,12 +887,12 @@ class dstat_disk24(dstat):
                     if target[0] != '/':
                         target = os.path.join(os.path.dirname(disk), target)
                         target = os.path.normpath(target)
-                    print 'dstat: symlink %s -> %s' % (disk, target)
+                    print('dstat: symlink %s -> %s' % (disk, target))
                     disk = target
                 # trim leading /dev/
                 return disk[5:]
             else:
-                print 'dstat: %s does not exist' % disk
+                print('dstat: %s does not exist' % disk)
         else:
             return disk
 
@@ -971,7 +964,7 @@ class dstat_disk24_old(dstat):
             break
         for item in objlist: ret.append(item)
         if not ret:
-            raise Exception, "No suitable block devices found to monitor"
+            raise Exception("No suitable block devices found to monitor")
         return ret
 
     def vars(self):
@@ -1215,7 +1208,7 @@ class dstat_io(dstat):
             ret.append(name)
         for item in objlist: ret.append(item)
         if not ret:
-            raise Exception, "No suitable block devices found to monitor"
+            raise Exception("No suitable block devices found to monitor")
         return ret
 
     def vars(self):
@@ -1378,7 +1371,7 @@ class dstat_net(dstat):
             if name in self.discover + ['total', 'lo']:
                 ret.append(name)
         if not ret:
-            raise Exception, "No suitable network interfaces found to monitor"
+            raise Exception("No suitable network interfaces found to monitor")
         return ret
 
     def name(self):
@@ -1551,7 +1544,7 @@ class dstat_swap(dstat):
             if name in self.discover + ['total']:
                 ret.append(name)
         if not ret:
-            raise Exception, "No suitable swap devices found to monitor"
+            raise Exception("No suitable swap devices found to monitor")
         return ret
 
     def name(self):
@@ -1884,7 +1877,7 @@ def dopen(filename):
     "Open a file for reuse, if already opened, return file descriptor"
     global fds
     if not os.path.exists(filename):
-        raise Exception, 'File %s does not exist' % filename
+        raise Exception('File %s does not exist' % filename)
 #        return None
     if 'fds' not in globals():
         fds = {}
@@ -1940,7 +1933,7 @@ def greppipe(fileobj, str, tmout = 0.001):
         else:
             ret = ''
     if op.debug:
-        raise Exception, 'Nothing found during greppipe data collection'
+        raise Exception('Nothing found during greppipe data collection')
     return None
 
 def matchpipe(fileobj, string, tmout = 0.001):
@@ -1958,13 +1951,13 @@ def matchpipe(fileobj, string, tmout = 0.001):
         else:
             ret = ''
     if op.debug:
-        raise Exception, 'Nothing found during matchpipe data collection'
+        raise Exception('Nothing found during matchpipe data collection')
     return None
 
 def cmd_test(cmd):
     pipes = os.popen3(cmd, 't', 0)
     for line in pipes[2].readlines():
-        raise Exception, line.strip()
+        raise Exception(line.strip())
 
 def cmd_readlines(cmd):
     pipes = os.popen3(cmd, 't', 0)
@@ -2164,7 +2157,7 @@ def cprint(var, type = 'f', width = 4, scale = 1000):
     elif type in ('t'):
         ret, c = tchg(var, width), ctext
     else:
-        raise Exception, 'Type %s not known to dstat.' % type
+        raise Exception('Type %s not known to dstat.' % type)
 
     ### Set the counter color
     if ret == '0':
@@ -2236,11 +2229,11 @@ def csvheader(totlist):
 def info(level, str):
     "Output info message"
 #   if level <= op.verbose:
-    print >>sys.stderr, str
+    print(str, file=sys.stderr)
 
 def die(ret, str):
     "Print error and exit with errorcode"
-    print >>sys.stderr, str
+    print(str, file=sys.stderr)
     exit(ret)
 
 def initterm():
@@ -2362,7 +2355,7 @@ def getcpunr():
         if cpunr > 0:
             return cpunr
     except:
-        raise Exception, "Problem finding number of CPUs in system."
+        raise Exception("Problem finding number of CPUs in system.")
 
 def blockdevices():
     ### We have to replace '!' by '/' to support cciss!c0d0 type devices :-/
@@ -2476,7 +2469,7 @@ def listplugins():
 
 def showplugins():
     rows, cols = gettermsize()
-    print 'internal:\n\t',
+    print('internal:\n\t', end=" ")
     remod = re.compile('^dstat_(.+)$')
     plugins = []
     for filename in globals():
@@ -2487,11 +2480,11 @@ def showplugins():
     for mod in plugins:
         cols2 = cols2 - len(mod) - 2
         if cols2 <= 0:
-            print '\n\t',
+            print('\n\t', end=" ")
             cols2 = cols - len(mod) - 10
         if mod != plugins[-1]:
-            print mod+',',
-    print mod
+            print(mod+',', end=" ")
+    print(mod)
     remod = re.compile('.+/dstat_(.+).py$')
     for path in pluginpath:
         plugins = []
@@ -2500,15 +2493,15 @@ def showplugins():
         if not plugins: continue
         plugins.sort()
         cols2 = cols - 8
-        print '%s:\n\t' % os.path.abspath(path),
+        print('%s:\n\t' % os.path.abspath(path), end=" ")
         for mod in plugins:
             cols2 = cols2 - len(mod) - 2
             if cols2 <= 0:
-                print '\n\t',
+                print('\n\t', end=" ")
                 cols2 = cols - len(mod) - 10
             if mod != plugins[-1]:
-                print mod+',',
-        print mod
+                print(mod+',', end=" ")
+        print(mod)
 
 def exit(ret):
     sys.stdout.write(ansi['reset'])
@@ -2529,7 +2522,7 @@ def exit(ret):
 #        p.sort_stats('time', 'cum').print_stats(.5, 'init')
 #        p.print_callees()
     elif op.profile:
-        print >>sys.stderr, "No profiling data was found, maybe profiler was interrupted ?"
+        print("No profiling data was found, maybe profiler was interrupted ?", file=sys.stderr)
 
     sys.exit(ret)
 
@@ -2542,7 +2535,8 @@ def main():
 
     cpunr = getcpunr()
     hz = os.sysconf('SC_CLK_TCK')
-    maxint = (sys.maxint + 1) * 2
+# FIXME: 'maxint = float("inf")' should be enough
+    maxint = (float("inf") + 1) * 2
     ownpid = str(os.getpid())
     pagesize = resource.getpagesize()
     interval = 1
@@ -2595,7 +2589,7 @@ def main():
             pidfile = open(op.pidfile, 'w', 0)
             pidfile.write(str(os.getpid()))
             pidfile.close()
-        except Exception, e:
+        except Exception as e:
             print >>sys.stderr, 'Failed to create pidfile %s' % op.pidfile, e
             op.pidfile = False
 
@@ -2642,47 +2636,47 @@ def main():
                     ### Try loading python plugin
                     if description[0] in ('.py', ):
                         execfile(pathname)
-                        exec 'o = dstat_plugin(); del(dstat_plugin)'
+                        exec('o = dstat_plugin(); del(dstat_plugin)')
                         o.filename = pluginfile
                         o.check()
                         o.prepare()
 
                     ### Try loading C plugin (not functional yet)
                     elif description[0] == '.so':
-                        exec 'import %s' % pluginfile
-                        exec 'o = %s.new()' % pluginfile
+                        exec('import %s' % pluginfile)
+                        exec('o = %s.new()' % pluginfile)
                         o.check()
                         o.prepare()
 #                        print dir(o)
 #                        print o.__module__
 #                        print o.name
                     else:
-                        print >>sys.stderr, 'Module %s is of unknown type.' % pluginfile
+                        print('Module %s is of unknown type.' % pluginfile, file=sys.stderr)
 
                 else:
-                    exec 'o = %s()' % pluginfile
+                    exec('o = %s()' % pluginfile)
                     o.check()
                     o.prepare()
 #                print o.__module__
-            except Exception, e:
+            except Exception as e:
                 if mod == mods[-1]:
-                    print >>sys.stderr, 'Module %s failed to load. (%s)' % (pluginfile, e)
+                    print('Module %s failed to load. (%s)' % (pluginfile, e), file=sys.stderr)
                 elif op.debug:
-                    print >>sys.stderr, 'Module %s failed to load, trying another. (%s)' % (pluginfile, e)
+                    print('Module %s failed to load, trying another. (%s)' % (pluginfile, e), file=sys.stderr)
                 if op.debug >= 3:
                     raise
 #                tb = sys.exc_info()[2]
                 continue
             except:
-                print >>sys.stderr, 'Module %s caused unknown exception' % pluginfile
+                print('Module %s caused unknown exception' % pluginfile, file=sys.stderr)
 
             linewidth = linewidth + o.statwidth() + 1
             totlist.append(o)
 
             if op.debug:
-                print 'Module', pluginfile,
+                print('Module', pluginfile, end=" ")
                 if hasattr(o, 'file'):
-                    print 'requires', o.file,
+                    print('requires', o.file, end=" ")
                 print
             break
 
@@ -2844,7 +2838,7 @@ if __name__ == '__main__':
             profile.run('main()', op.profile)
         else:
             main()
-    except KeyboardInterrupt, e:
+    except KeyboardInterrupt as e:
         if op.update:
             sys.stdout.write('\n')
     exit(0)
